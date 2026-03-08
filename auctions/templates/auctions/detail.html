@@ -1,0 +1,108 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="row g-5">
+        <div class="col-lg-7">
+            <div class="p-2 bg-white shadow-sm">
+                {% if listing.image_url %}
+                    <img src="{{ listing.image_url }}" class="img-fluid w-100" style="border: 1px solid #eee;">
+                {% elif listing.image %}
+                    <img src="{{ listing.image.url }}" class="img-fluid w-100" style="border: 1px solid #eee;">
+                {% else %}
+                    <img src="https://via.placeholder.com/800x600?text=No+Image+Available" class="img-fluid w-100">
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="ps-lg-5">
+                <h6 class="text-muted text-uppercase mb-2" style="letter-spacing: 2px;">{{ listing.category }}</h6>
+                <h1 class="display-3 mb-2" style="font-family: 'Cormorant Garamond', serif; color: #1a1a1a;">{{ listing.title }}</h1>
+                <p class="text-muted mb-4">Listed by: <strong>{{ listing.owner.username }}</strong></p>
+                
+                <div class="py-4 my-4 border-top border-bottom">
+                    <small class="text-muted d-block mb-1 text-uppercase" style="font-size: 0.7rem;">Current Price</small>
+                    <span class="display-5 fw-bold" style="color: #b22222; font-family: 'Inter', sans-serif;">${{ listing.starting_bid }}</span>
+                </div>
+
+                <p class="text-muted mb-5" style="line-height: 1.8; font-size: 1.1rem;">{{ listing.description }}</p>
+
+                {% if user.is_authenticated %}
+                    <div class="mt-5">
+                        
+                        {% if listing.is_active %}
+                            
+                            <form action="{% url 'place_bid' listing.id %}" method="post" class="mb-3">
+                                {% csrf_token %}
+                                <div class="input-group input-group-lg">
+                                    <input type="number" name="new_bid" class="form-control rounded-0" placeholder="Enter Bid" min="{{ listing.starting_bid }}" step="0.01" required>
+                                    <button class="btn px-4 text-white" style="background: #1a1a1a; border-radius: 0; font-weight: 600;" type="submit">PLACE BID</button>
+                                </div>
+                            </form>
+
+                            <form action="{% url 'toggle_watchlist' listing.id %}" method="post">
+                                {% csrf_token %}
+                                <button class="btn btn-outline-dark w-100 rounded-0 py-3 mt-2" style="font-size: 0.8rem; letter-spacing: 1px; font-weight: 600;">
+                                    {% if request.user in listing.watchlist.all %} 
+                                        REMOVE FROM WATCHLIST 
+                                    {% else %} 
+                                        ADD TO WATCHLIST 
+                                    {% endif %}
+                                </button>
+                            </form>
+
+                            {% if user == listing.owner %}
+                                <div class="mt-4 p-3 border border-danger">
+                                    <p class="small text-danger fw-bold text-uppercase mb-2">Seller Controls</p>
+                                    <form action="{% url 'close_auction' listing.id %}" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger w-100 rounded-0 py-2 fw-bold">CLOSE AUCTION</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+
+                        {% else %}
+                            <div class="alert alert-secondary rounded-0 py-4 text-center">
+                                <h3 style="font-family: 'Cormorant Garamond', serif;">Auction Closed</h3>
+                                {% if winner %}
+                                    <p class="mb-0">Winner: <strong>{{ winner.username }}</strong></p>
+                                    {% if user == winner %}
+                                        <div class="alert alert-success mt-3 mb-0 rounded-0">Congratulations! You won this auction.</div>
+                                    {% endif %}
+                                {% else %}
+                                    <p class="mb-0">No bids were placed.</p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                    </div>
+                {% else %}
+                    <p class="mt-5 text-muted"><a href="{% url 'login' %}">Log in</a> to place a bid or add to watchlist.</p>
+                {% endif %}
+
+                <div class="mt-5 pt-5 border-top">
+                    <h5 class="mb-4" style="font-family: 'Cormorant Garamond', serif;">Comments</h5>
+                    
+                    <div id="comments-section">
+                        {% for comment in listing.comments.all %}
+                            <div class="mb-3 pb-3 border-bottom">
+                                <p class="mb-1"><strong>{{ comment.user.username }}</strong></p>
+                                <p class="text-muted small mb-0">{{ comment.message }}</p>
+                            </div>
+                        {% empty %}
+                            <p class="text-muted small">No comments yet.</p>
+                        {% endfor %}
+                    </div>
+
+                    {% if user.is_authenticated %}
+                    <form action="{% url 'add_comment' listing.id %}" method="post" class="mt-4">
+                        {% csrf_token %}
+                        <textarea name="comment" class="form-control rounded-0 mb-2" rows="3" placeholder="Add a comment..." required></textarea>
+                        <button type="submit" class="btn btn-dark rounded-0 btn-sm px-4">POST COMMENT</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

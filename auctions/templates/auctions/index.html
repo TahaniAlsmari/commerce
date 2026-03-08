@@ -1,0 +1,49 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="row align-items-center mb-5 pb-5">
+        <div class="col-md-6">
+            <h6 class="text-muted text-uppercase mb-3" style="letter-spacing: 3px;">Fine Art Curation</h6>
+            <h1 class="display-3 fw-bold mb-4" style="font-family: 'Cormorant Garamond', serif; color: #1a1a1a; line-height: 1.1;">
+                Authentic <br> Masterpieces.
+            </h1>
+            <p class="text-muted mb-4 fs-5 w-75" style="line-height: 1.6;">
+                A specialized collection featuring the iconic works of Van Gogh, Cézanne, and Gauguin.
+            </p>
+            <a href="#collection" class="btn px-5 py-3 text-white" style="background: var(--brand-red); border-radius: 50px; font-weight: 600;">View Collection</a>
+        </div>
+        <div class="col-md-6 text-end">
+            <div class="position-relative d-inline-block">
+                <img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1000" class="img-fluid rounded-1 shadow-lg" style="width: 85%; height: 550px; object-fit: cover;">
+                <div class="position-absolute bottom-0 start-0 bg-white p-4 shadow-sm m-4">
+                    <small class="text-muted d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Artist of the Month</small>
+                    <strong class="text-dark fs-5" style="font-family: 'Cormorant Garamond', serif;">Vincent van Gogh</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="collection" class="row row-cols-1 row-cols-md-3 g-5 mt-5">
+        {% for item in listing %}
+            <div class="col">
+                <div class="card border-0 bg-transparent h-100">
+                    <div style="overflow: hidden;">
+                        {% if item.image %}
+                            <img src="{{ item.image.url }}" class="card-img-top rounded-0" style="height: 400px; object-fit: cover; transition: 0.6s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        {% else %}
+                            <img src="https://via.placeholder.com/400x400?text=No+Image" class="card-img-top rounded-0" style="height: 400px; object-fit: cover;">
+                        {% endif %}
+                    </div>
+                    <div class="card-body px-0 pt-4">
+                        <small class="text-muted text-uppercase" style="letter-spacing: 1px;">{{ item.category }}</small>
+                        <h4 class="fw-bold my-2" style="font-family: 'Cormorant Garamond', serif; font-size: 1.6rem;">{{ item.title }}</h4>
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                            <span class="fs-4 fw-bold" style="color: var(--brand-red);">${{ item.starting_bid }}</span>
+                            <a href="{% url 'listing_detail' item.id %}" class="text-dark fw-bold text-decoration-none border-bottom border-dark pb-1" style="font-size: 0.8rem;">DISCOVER</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
